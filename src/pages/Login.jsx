@@ -4,20 +4,15 @@ import { useNavigate } from 'react-router-dom'
 import FormError from '../components/FormError'
 import FormInputText from '../components/FormInputText'
 import { UserContext } from '../context/UserProvider'
-import { errorsFirebase } from './util/errorsFirebase'
-import { formValidate } from './util/formValidate'
+import { errorsFirebase } from '../util/errorsFirebase'
+import { formValidate } from '../util/formValidate'
 
 const Login = () => {
   const { loginUser, user } = useContext(UserContext)
 
   const navigate = useNavigate()
 
-  const {
-    required,
-    patternEmail,
-    minLength,
-    validateTrim,
-  } = formValidate()
+  const { required, patternEmail, minLength, validateTrim } = formValidate()
 
   const {
     register,
@@ -38,9 +33,8 @@ const Login = () => {
       navigate('/')
     } catch (error) {
       console.log(error.code)
-      setError('firebase', {
-        message: errorsFirebase(error.code)
-      })
+      const { code, message } = errorsFirebase(error.code)
+      setError(code, { message: message })
     }
   }
   return (
@@ -55,7 +49,7 @@ const Login = () => {
             pattern: patternEmail
           })}
         >
-          <FormError errors={errors.firebase} />
+          <FormError errors={errors.email} />
         </FormInputText>
         <FormInputText
           type='password'
