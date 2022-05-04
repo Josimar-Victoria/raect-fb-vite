@@ -1,8 +1,10 @@
 import React, { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import Buttom from '../components/Buttom'
 import FormError from '../components/FormError'
 import FormInputText from '../components/FormInputText'
+import Title from '../components/Title'
 import { UserContext } from '../context/UserProvider'
 import { errorsFirebase } from '../util/errorsFirebase'
 import { formValidate } from '../util/formValidate'
@@ -45,12 +47,14 @@ const Register = () => {
 
   return (
     <>
-      <h1>Register</h1>
+      <Title text='Register' />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormInputText
           type='email'
           placeholder='Email'
+          label='Ingresa tu email'
+          error={errors.email}
           {...register('email', {
             required,
             pattern: patternEmail
@@ -61,6 +65,8 @@ const Register = () => {
         <FormInputText
           type='password'
           placeholder='password'
+          error={errors.password}
+          label='Ingresa tu password'
           {...register('password', {
             minLength,
             validate: validateTrim
@@ -71,14 +77,17 @@ const Register = () => {
         <FormInputText
           type='password'
           placeholder='confirm password'
+          error={errors.confirmPassword}
+          label='Confirma tu password'
+
           {...register('confirmPassword', {
-            validate: validateEquals(getValues("password"))
+            validate: validateEquals(getValues('password'))
           })}
         >
           <FormError errors={errors.confirmPassword} />
         </FormInputText>
 
-        <button type='submit'>Register</button>
+        <Buttom text='Register' type='submit' />
       </form>
     </>
   )
