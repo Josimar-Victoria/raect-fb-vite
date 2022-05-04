@@ -1,12 +1,21 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import FormError from '../components/FormError'
+import FormInputText from '../components/FormInputText'
 import { UserContext } from '../context/UserProvider'
+import { errorsFirebase } from './util/errorsFirebase'
+import { formValidate } from './util/formValidate'
 
 const Register = () => {
   const { regiterdUser } = useContext(UserContext)
-  // const [email, setEmail] = useState('josimar@gmail.com')
-  // const [password, setPassword] = useState('josimar123')
+  const {
+    required,
+    patternEmail,
+    minLength,
+    validateTrim,
+    validateEquals
+  } = formValidate()
   const navigate = useNavigate()
 
   const {
@@ -17,105 +26,58 @@ const Register = () => {
     formState: { errors }
   } = useForm({
     defaultValues: {
-      email: 'josimar@gmail.com'
+      email: 'josimar@gmail.com',
+      password: 'josimar123',
+      confirmPassword: 'josimar123'
     }
   })
 
   const onSubmit = async ({ email, password }) => {
-    console.log('registrado' + email + password)
     try {
       await regiterdUser(email, password)
       navigate('/')
     } catch (error) {
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          setError('email', {
-            type: 'manual',
-            message: 'Email Ya está em uso'
-          })
-          break
-
-        case 'auth/invalid-email':
-          setError('email', {
-            type: 'manual',
-            message: 'Email inválido'
-          })
-          break
-
-        case 'auth/operation-not-allowed':
-          setError('email', {
-            type: 'manual',
-            message: 'Operacion no permitida'
-          })
-          break
-
-        case 'auth/weak-password':
-          setError('email', {
-            type: 'manual',
-            message: 'Contraseña débil'
-          })
-          break
-
-        default:
-          console.log('Erro desconhecido')
-          break
-      }
+      setError('firebase', {
+        message: errorsFirebase(error.code)
+      })
     }
   }
 
   return (
     <>
       <h1>Register</h1>
+
       <form onSubmit={handleSubmit(onSubmit)}>
-        <input
+        <FormInputText
           type='email'
-          placeholder='email'
-          name='email'
+          placeholder='Email'
           {...register('email', {
-            required: {
-              value: true,
-              message: 'Campo obrigatório'
-            },
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-              message: 'Email inválido'
-            }
+            required,
+            pattern: patternEmail
           })}
-        />
-        {errors.email && <p>{errors.email.message}</p>}
-        <input
+        >
+          <FormError errors={errors.firebase} />
+        </FormInputText>
+        <FormInputText
           type='password'
           placeholder='password'
-          name='password'
           {...register('password', {
-            minLength: {
-              value: 6,
-              message: 'La contraseña debe tener al menos 6 caracteres'
-            },
-            validate: {
-              trim: value => {
-                if (!value.trim()) {
-                  return 'Campo obligatorio'
-                }
-                return true
-              }
-            }
+            minLength,
+            validate: validateTrim
           })}
-        />
-        {errors.password && <p>{errors.password.message}</p>}
-        <input
+        >
+          <FormError errors={errors.password} />
+        </FormInputText>
+        <FormInputText
           type='password'
           placeholder='confirm password'
-          name='confirmPassword'
           {...register('confirmPassword', {
-            validate: {
-              confirmPassword: value =>
-                value === getValues('password') ||
-                'Las contraseñas no coinciden'
-            }
+            validate: validateEquals(getValues)
           })}
-        />
-        {errors.confirmPassword && <p>{errors.confirmPassword.message}</p>}
+        >
+          <FormError errors={errors.confirmPassword} />
+        </FormInputText>
+
         <button type='submit'>Register</button>
       </form>
     </>
