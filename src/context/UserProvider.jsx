@@ -14,12 +14,10 @@ const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, user => {
-      console.log(user)
       if (user) {
         const { email, displayName, photoURL, uid } = user
         setUser({ email, displayName, photoURL, uid })
-      }
-      else{
+      } else {
         setUser(null)
       }
     })

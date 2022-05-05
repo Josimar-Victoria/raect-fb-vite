@@ -1,7 +1,8 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import Buttom from '../components/Buttom'
+import ButtonLoading from '../components/ButtonLoading'
 import FormError from '../components/FormError'
 import FormInputText from '../components/FormInputText'
 import Title from '../components/Title'
@@ -11,9 +12,8 @@ import { formValidate } from '../util/formValidate'
 
 const Login = () => {
   const { loginUser, user } = useContext(UserContext)
-
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-
   const { required, patternEmail, minLength, validateTrim } = formValidate()
 
   const {
@@ -30,13 +30,15 @@ const Login = () => {
 
   const onSubmit = async ({ email, password }) => {
     try {
+      setLoading(true)
       await loginUser(email, password)
-      console.log('User login', email, password)
       navigate('/')
     } catch (error) {
       console.log(error.code)
       const { code, message } = errorsFirebase(error.code)
       setError(code, { message: message })
+    } finally {
+      setLoading(false)
     }
   }
   return (
@@ -67,8 +69,7 @@ const Login = () => {
         >
           <FormError errors={errors.password} />
         </FormInputText>
-
-        <Buttom text='Login' type='submit' />
+        <Buttom text='Ingresar' type='submit' loading={loading} />
       </form>
     </>
   )

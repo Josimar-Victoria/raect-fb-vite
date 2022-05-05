@@ -1,7 +1,8 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import Buttom from '../components/Buttom'
+import ButtonLoading from '../components/ButtonLoading'
 import FormError from '../components/FormError'
 import FormInputText from '../components/FormInputText'
 import Title from '../components/Title'
@@ -11,6 +12,7 @@ import { formValidate } from '../util/formValidate'
 
 const Register = () => {
   const { regiterdUser } = useContext(UserContext)
+  const [loading, setLoading] = useState(false)
   const {
     required,
     patternEmail,
@@ -36,12 +38,15 @@ const Register = () => {
 
   const onSubmit = async ({ email, password }) => {
     try {
+      setLoading(true)
       await regiterdUser(email, password)
       navigate('/')
     } catch (error) {
       console.log(error.code)
       const { code, message } = errorsFirebase(error.code)
       setError(code, { message: message })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -79,15 +84,13 @@ const Register = () => {
           placeholder='confirm password'
           error={errors.confirmPassword}
           label='Confirma tu password'
-
           {...register('confirmPassword', {
             validate: validateEquals(getValues('password'))
           })}
         >
           <FormError errors={errors.confirmPassword} />
         </FormInputText>
-
-        <Buttom text='Register' type='submit' />
+        <Buttom text='Registrar' type='submit' loading={loading} />
       </form>
     </>
   )
